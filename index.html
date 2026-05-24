@@ -378,50 +378,11 @@ tr.tr-warn:hover td{background:var(--amb-bg)}
   </div>
 </div>
 
-<script type="module">
-// ═══════════════ FIREBASE ═══════════════
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyAuYv0ocDefCOG8PX9asfMYxFLD_DOlYaM",
-  authDomain: "quanlyduocphambvrhmtw.firebaseapp.com",
-  databaseURL: "https://quanlyduocphambvrhmtw-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "quanlyduocphambvrhmtw",
-  storageBucket: "quanlyduocphambvrhmtw.firebasestorage.app",
-  messagingSenderId: "860761601864",
-  appId: "1:860761601864:web:0b27aec56c51cf9d97a57d"
-};
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
-
-function fbSet(path, data){ return set(ref(db, path), data); }
-async function fbGet(path){ const s=await get(ref(db,path)); return s.val(); }
-
-function syncUsers(){ fbSet('users', users); }
-function syncWH(){ fbSet('warehouses', WH); }
-function syncDepts(){ fbSet('depts', DEPTS.map(d=>({...d}))); }
-
-function showLoading(){
-  document.getElementById('pg-login').style.display='none';
-  document.getElementById('pg-reg').style.display='none';
-  document.getElementById('pg-app').style.display='none';
-  let ld=document.getElementById('pg-loading');
-  if(!ld){
-    ld=document.createElement('div'); ld.id='pg-loading';
-    ld.style.cssText='display:flex;align-items:center;justify-content:center;min-height:100vh;flex-direction:column;gap:12px;background:var(--bg)';
-    ld.innerHTML=`<svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2" stroke-linecap="round" style="animation:spin 1s linear infinite"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg><div style="font-size:13px;color:var(--muted)">Đang tải dữ liệu...</div>`;
-    const st=document.createElement('style'); st.textContent='@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}'; document.head.appendChild(st);
-    document.body.appendChild(ld);
-  }
-  ld.style.display='flex';
-}
-function hideLoading(){ const ld=document.getElementById('pg-loading'); if(ld) ld.style.display='none'; }
-
+<script>
 // ═══════════════ DATA ═══════════════
 const TODAY = new Date('2026-05-23');
 
-const DEFAULT_DEPTS = [
+const DEPTS = [
   {id:'noi',    n:'Khoa Nội',     c:'#185FA5', bg:'#E6F1FB', ic:'noi'},
   {id:'ngoai',  n:'Khoa Ngoại',   c:'#993C1D', bg:'#FAECE7', ic:'ngoai'},
   {id:'nhi',    n:'Khoa Nhi',     c:'#534AB7', bg:'#EEEDFE', ic:'nhi'},
@@ -430,15 +391,6 @@ const DEFAULT_DEPTS = [
   {id:'mat',    n:'Khoa Mắt',     c:'#0F6E56', bg:'#E1F5EE', ic:'mat'},
   {id:'icu',    n:'ICU',          c:'#854F0B', bg:'#FAEEDA', ic:'icu'},
   {id:'pthuoc', n:'Phòng thuốc',  c:'#3B6D11', bg:'#EAF3DE', ic:'pthuoc'},
-];
-
-let DEPTS = [...DEFAULT_DEPTS];
-
-const DEFAULT_USERS = [
-  {id:1,name:'Nguyễn Admin',uname:'admin',pass:'admin',role:'admin',depts:[],active:true},
-  {id:2,name:'Trần Thị Lan',uname:'lan',pass:'123',role:'staff',depts:['noi'],active:true},
-  {id:3,name:'Lê Văn Hùng',uname:'hung',pass:'123',role:'staff',depts:['ngoai','ccap'],active:true},
-  {id:4,name:'Phạm Mai Anh',uname:'anh.nhi',pass:'123',role:'staff',depts:['nhi'],active:true},
 ];
 
 const DEPT_IC = {
@@ -452,10 +404,69 @@ const DEPT_IC = {
   pthuoc:'<svg viewBox="0 0 24 24" style="width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round"><path d="M10.5 20H4a2 2 0 0 1-2-2V5c0-1.1.9-2 2-2h3.93a2 2 0 0 1 1.66.9l.82 1.2a2 2 0 0 0 1.66.9H20a2 2 0 0 1 2 2v3"/><circle cx="17" cy="17" r="3"/><path d="m21 21-1.5-1.5"/></svg>',
 };
 
-let users = [];
+let users = [
+  {id:1,name:'Nguyễn Admin',uname:'admin',pass:'admin',role:'admin',depts:[],active:true},
+  {id:2,name:'Trần Thị Lan',uname:'lan',pass:'123',role:'staff',depts:['noi'],active:true},
+  {id:3,name:'Lê Văn Hùng',uname:'hung',pass:'123',role:'staff',depts:['ngoai','ccap'],active:true},
+  {id:4,name:'Phạm Mai Anh',uname:'anh.nhi',pass:'123',role:'staff',depts:['nhi'],active:true},
+];
 let nextUid = 10;
 
-let WH = {};
+let WH = {
+  noi:[
+    {id:1,name:'Kho thuốc thường', items:[
+      {id:1,name:'Paracetamol 650mg',qty:120,base:200,unit:'Viên',date:'2026-12-31'},
+      {id:2,name:'Metformin 500mg',qty:30,base:100,unit:'Hộp',date:'2027-06-30'},
+      {id:3,name:'Vitamin C 1000mg',qty:48,base:80,unit:'Hộp',date:'2026-06-10'},
+      {id:4,name:'Amoxicillin 500mg',qty:18,base:60,unit:'Hộp',date:'2026-05-20'},
+    ]},
+    {id:2,name:'Kho thuốc tiêm', items:[
+      {id:5,name:'Furosemide 20mg/2ml',qty:45,base:50,unit:'Ống',date:'2026-05-15'},
+      {id:6,name:'Dexamethasone 4mg',qty:22,base:40,unit:'Ống',date:'2026-07-01'},
+    ]},
+  ],
+  ngoai:[
+    {id:3,name:'Kho phẫu thuật', items:[
+      {id:7,name:'Ceftriaxone 1g',qty:8,base:30,unit:'Lọ',date:'2026-09-01'},
+      {id:8,name:'Ketamine 500mg',qty:12,base:20,unit:'Ống',date:'2026-05-10'},
+      {id:9,name:'Metronidazole 500mg',qty:55,base:40,unit:'Hộp',date:'2025-12-31'},
+    ]},
+  ],
+  ccap:[
+    {id:4,name:'Kho cấp cứu', items:[
+      {id:10,name:'Adrenaline 1mg',qty:5,base:20,unit:'Ống',date:'2026-05-30'},
+      {id:11,name:'NaCl 0.9% 500ml',qty:25,base:50,unit:'Chai',date:'2027-03-01'},
+      {id:12,name:'Atropine 1mg',qty:8,base:25,unit:'Ống',date:'2026-04-01'},
+    ]},
+  ],
+  nhi:[
+    {id:5,name:'Kho thuốc nhi', items:[
+      {id:13,name:'Amoxicillin Siro',qty:20,base:40,unit:'Chai',date:'2026-11-01'},
+      {id:14,name:'Paracetamol Siro',qty:15,base:30,unit:'Chai',date:'2026-08-15'},
+      {id:15,name:'Vitamin D3',qty:25,base:40,unit:'Hộp',date:'2027-02-01'},
+    ]},
+  ],
+  san:[
+    {id:6,name:'Kho thuốc sản', items:[
+      {id:16,name:'Oxytocin 10IU',qty:18,base:30,unit:'Ống',date:'2026-06-15'},
+      {id:17,name:'Vitamin tổng hợp',qty:74,base:60,unit:'Hộp',date:'2027-01-01'},
+    ]},
+  ],
+  icu:[
+    {id:7,name:'Kho ICU', items:[
+      {id:18,name:'Propofol 200mg',qty:6,base:20,unit:'Lọ',date:'2026-05-25'},
+      {id:19,name:'Midazolam 5mg',qty:9,base:25,unit:'Ống',date:'2026-08-01'},
+      {id:20,name:'Vecuronium',qty:14,base:20,unit:'Lọ',date:'2025-11-30'},
+    ]},
+  ],
+  pthuoc:[
+    {id:8,name:'Kho chính', items:[
+      {id:21,name:'Atorvastatin 20mg',qty:210,base:100,unit:'Hộp',date:'2028-01-01'},
+      {id:22,name:'Omeprazole 20mg',qty:95,base:80,unit:'Hộp',date:'2026-07-10'},
+      {id:23,name:'Tetracycline 250mg',qty:24,base:30,unit:'Hộp',date:'2026-04-15'},
+    ]},
+  ],
+};
 let nextWid = 100, nextIid = 200;
 
 // ═══════════════ HELPERS ═══════════════
@@ -597,7 +608,6 @@ function doRegister(){
   if(rSelDepts.length===0){ err.textContent='Vui lòng chọn ít nhất 1 khoa / phòng'; return }
   if(users.find(u=>u.uname===uname)){ err.textContent='Tên đăng nhập đã tồn tại'; return }
   users.push({id:nextUid++,name,uname,pass:pw,role:'staff',depts:[...rSelDepts],active:true});
-  syncUsers();
   err.style.color='var(--green)'; err.textContent='Đăng ký thành công! Đang chuyển về đăng nhập...';
   setTimeout(()=>{ err.textContent=''; buildQL(); showPage('pg-login'); },1500);
 }
@@ -825,12 +835,12 @@ function saveWH(){
   if(!WH[whModal.dId]) WH[whModal.dId]=[];
   if(whModal.mode==='add'){ WH[whModal.dId].push({id:nextWid++,name,items:[]}); toast('Đã thêm kho: '+name); }
   else{ const w=WH[whModal.dId].find(x=>x.id===whModal.wid); if(w) w.name=name; toast('Đã cập nhật tên kho'); }
-  syncWH(); closeOv(); setView('warehouse');
+  closeOv(); setView('warehouse');
 }
 function delWH(dId,wid){
   const w=(WH[dId]||[]).find(x=>x.id===wid);
   WH[dId]=(WH[dId]||[]).filter(x=>x.id!==wid);
-  syncWH(); toast('Đã xóa kho: '+(w?w.name:'')); buildSidebar(); setView('warehouse');
+  toast('Đã xóa kho: '+(w?w.name:'')); buildSidebar(); setView('warehouse');
 }
 
 function openAddItem(dId,wid){ itModal={dId,wid,iid:null}; showItemForm() }
@@ -865,13 +875,13 @@ function saveItem(){
   const w=WH[itModal.dId].find(x=>x.id===itModal.wid); if(!w) return;
   if(!itModal.iid){ w.items.push({id:nextIid++,name,qty,base,unit,date}); toast('Đã thêm: '+name); }
   else{ const it=w.items.find(x=>x.id===itModal.iid); if(it) Object.assign(it,{name,qty,base,unit,date}); toast('Đã cập nhật: '+name); }
-  syncWH(); closeOv(); buildSidebar(); setView('warehouse');
+  closeOv(); buildSidebar(); setView('warehouse');
 }
 function delItem(dId,wid,iid){
   const w=(WH[dId]||[]).find(x=>x.id===wid); if(!w) return;
   const it=w.items.find(x=>x.id===iid);
   w.items=w.items.filter(x=>x.id!==iid);
-  syncWH(); toast('Đã xóa: '+(it?it.name:'')); buildSidebar(); setView('warehouse');
+  toast('Đã xóa: '+(it?it.name:'')); buildSidebar(); setView('warehouse');
 }
 
 // ── EXPIRY (alarm redesign) ──
@@ -1179,7 +1189,6 @@ function renderUList(){
     <div style="font-size:11px;color:var(--faint);font-family:var(--mono);margin-right:6px">${u.uname}</div>
     <div style="display:flex;gap:5px">
       <button class="icon-btn" onclick="openUF(${u.id})" title="Sửa"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
-      <button class="icon-btn" onclick="openChangePw(${u.id})" title="Đổi mật khẩu" style="border-color:var(--pur-bd);color:var(--purple)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></button>
       <button class="icon-btn" onclick="toggleUA(${u.id})" title="${u.active?'Khóa':'Mở khóa'}" style="${u.active?'border-color:var(--amb-bd);color:var(--amber)':''}"><svg viewBox="0 0 24 24">${u.active?'<rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>':'<rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/>'}</svg></button>
       ${u.id!==CU.id?`<button class="icon-btn" onclick="delUser(${u.id})" title="Xóa" style="border-color:var(--red-bd);color:var(--red)"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>`:''}
     </div>
@@ -1350,12 +1359,12 @@ function saveU(){
   if(users.find(u=>u.uname===uname&&u.id!==uEditId)){toast('Tên đăng nhập đã tồn tại!',true);return}
   if(uEditId){ const i=users.findIndex(x=>x.id===uEditId); if(i>=0){users[i]={...users[i],name,uname,role:uSelRole,depts:uSelRole==='admin'?[]:uSelDepts};if(pw)users[i].pass=pw;} toast('Đã cập nhật'); }
   else { users.push({id:nextUid++,name,uname,pass:pw,role:uSelRole,depts:uSelRole==='admin'?[]:uSelDepts,active:true}); toast('Đã thêm người dùng mới'); }
-  syncUsers(); closeUF(); renderUList(); buildQL(); buildSidebar();
+  closeUF(); renderUList(); buildQL(); buildSidebar();
 }
 function toggleUA(id){
   if(id===CU.id){toast('Không thể khóa tài khoản đang dùng!',true);return}
   const u=users.find(x=>x.id===id); if(!u) return;
-  u.active=!u.active; syncUsers(); toast(u.active?'Đã mở khóa':'Đã khóa tài khoản'); renderUList();
+  u.active=!u.active; toast(u.active?'Đã mở khóa':'Đã khóa tài khoản'); renderUList();
 }
 function delUser(id){
   if(id===CU.id){toast('Không thể xóa tài khoản đang dùng!',true);return}
@@ -1364,32 +1373,8 @@ function delUser(id){
     'Xác nhận xóa tài khoản',
     `Bạn có chắc muốn xóa tài khoản <strong>${u.name}</strong> (${u.uname})? Hành động này không thể hoàn tác.`,
     'var(--red)',
-    ()=>{ users=users.filter(x=>x.id!==id); syncUsers(); toast('Đã xóa: '+u.name); renderUList(); buildQL(); buildSidebar(); }
+    ()=>{ users=users.filter(x=>x.id!==id); toast('Đã xóa: '+u.name); renderUList(); buildQL(); buildSidebar(); }
   );
-}
-
-function openChangePw(uid){
-  const u=users.find(x=>x.id===uid); if(!u) return;
-  showOv(`<div class="modal">
-    <h3><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Đổi mật khẩu — ${u.name}</h3>
-    <div class="fg"><label>Mật khẩu mới *</label><input id="cpw-new" type="password" placeholder="Nhập mật khẩu mới" autofocus/></div>
-    <div class="fg"><label>Xác nhận mật khẩu *</label><input id="cpw-cfm" type="password" placeholder="Nhập lại mật khẩu"/></div>
-    <div id="cpw-err" style="font-size:12px;color:var(--red);min-height:16px;margin-bottom:6px"></div>
-    <div class="fa">
-      <button class="btn btn-g" onclick="closeOv()">Hủy</button>
-      <button class="btn btn-p" onclick="saveChangePw(${uid})"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Lưu mật khẩu</button>
-    </div>
-  </div>`);
-}
-function saveChangePw(uid){
-  const pw=(document.getElementById('cpw-new').value||'').trim();
-  const cfm=(document.getElementById('cpw-cfm').value||'').trim();
-  const err=document.getElementById('cpw-err');
-  if(!pw){err.textContent='Vui lòng nhập mật khẩu mới!';return;}
-  if(pw.length<3){err.textContent='Mật khẩu phải có ít nhất 3 ký tự!';return;}
-  if(pw!==cfm){err.textContent='Mật khẩu xác nhận không khớp!';return;}
-  const u=users.find(x=>x.id===uid); if(!u) return;
-  u.pass=pw; syncUsers(); closeOv(); toast('Đã đổi mật khẩu cho: '+u.name);
 }
 
 // ── DEPARTMENTS MANAGEMENT ──
@@ -1521,8 +1506,9 @@ function saveDept(){
     DEPT_IC[rawId]=DEPT_IC['pthuoc'];
     WH[rawId]=[];
   }
-  closeDF(); renderDeptList(); buildSidebar(); buildRegDepts();
-  syncDepts(); syncWH();
+  closeDF(); renderDeptList(); buildSidebar();
+  // refresh register dept grid
+  buildRegDepts();
 }
 
 function confirmDelDept(did){
@@ -1540,7 +1526,6 @@ function confirmDelDept(did){
       if(idx>=0) DEPTS.splice(idx,1);
       delete WH[did];
       users.forEach(u=>{ u.depts=u.depts.filter(x=>x!==did); });
-      syncDepts(); syncWH(); syncUsers();
       toast('Đã xóa khoa: '+d.n);
       renderDeptList(); buildSidebar(); buildRegDepts();
     }
@@ -1652,57 +1637,9 @@ function closeAlarmPopup(){
   const p=document.getElementById('alarm-popup'); if(p) p.remove();
 }
 
-// ═══════════════ EXPOSE GLOBALS ═══════════════
-Object.assign(window,{
-  ql,doLogin,doLogout,buildQL,buildRegDepts,renderRDeptTags,
-  removeRDeptTag,quickAddRDept,filterRDeptSug,selectRDeptSug,addRDeptTag,doRegister,
-  buildSidebar,setView,
-  openAddWH,openEditWH,saveWH,delWH,
-  openAddItem,openEditItem,saveItem,delItem,
-  doExportHTML,
-  openUF,closeUF,saveU,toggleUA,delUser,openChangePw,saveChangePw,
-  renderDeptTags,removeDeptTag,quickAddDept,filterDeptSuggest,selectSuggest,deptInputKey,addDeptTag,setUR,
-  vDepts,renderDeptList,openDF,closeDF,saveDept,pickDC,confirmDelDept,
-  showConfirm,doConfirm,showOv,closeOv,toast,closeAlarmPopup,
-  gd,daysTo,expLevel,expTag,stockTag,fmtDate,
-});
-
-// ═══════════════ INIT — Load từ Firebase ═══════════════
-async function initApp(){
-  showLoading();
-  try{
-    const [fbUsers,fbWH,fbDepts]=await Promise.all([
-      fbGet('users'), fbGet('warehouses'), fbGet('depts')
-    ]);
-    if(fbUsers&&Array.isArray(fbUsers)&&fbUsers.length){
-      users=fbUsers;
-      nextUid=Math.max(...users.map(u=>u.id||0))+1;
-    } else {
-      users=DEFAULT_USERS.map(u=>({...u}));
-      await fbSet('users',users);
-    }
-    if(fbWH&&typeof fbWH==='object'&&Object.keys(fbWH).length){
-      WH=fbWH;
-      let mw=100,mi=200;
-      Object.values(WH).forEach(ws=>(ws||[]).forEach(w=>{
-        if(w.id>mw)mw=w.id;
-        (w.items||[]).forEach(it=>{if(it.id>mi)mi=it.id;});
-      }));
-      nextWid=mw+1; nextIid=mi+1;
-    } else {
-      WH={}; await fbSet('warehouses',WH);
-    }
-    if(fbDepts&&Array.isArray(fbDepts)&&fbDepts.length){
-      DEPTS.length=0; fbDepts.forEach(d=>DEPTS.push(d));
-    } else {
-      await fbSet('depts',DEPTS.map(d=>({...d})));
-    }
-  }catch(e){ console.error('Firebase error:',e); }
-  hideLoading();
-  buildQL();
-  buildRegDepts();
-}
-initApp();
+// ═══════════════ INIT ═══════════════
+buildQL();
+buildRegDepts();
 </script>
 </body>
 </html>
